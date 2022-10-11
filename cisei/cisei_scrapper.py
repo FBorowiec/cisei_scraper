@@ -1,8 +1,9 @@
+import logging
 import re
 from datetime import date, datetime
 from string import ascii_letters
 from time import sleep
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
@@ -154,9 +155,9 @@ class CiseiRequestHandler:
             td_list = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
                 person_info = self.get_person_info(td_list, name)
-                person_details = self.get_person_details(person_info)
-                person_info.details = person_details
-                sleep(0.5)  # do not overload the server
+                person_info.details = self.get_person_details(person_info)
+                # Do not overload the server
+                sleep(0.5)
 
                 self.log_person_info(person_info)
 
@@ -167,24 +168,25 @@ class CiseiRequestHandler:
         return "Successivi" in f"{matches}"
 
     def log_person_info(self, person_info: PersonalInfo) -> None:
-        print(person_info, "\n")
+        logging.info(person_info, "\n")
         self.logger.add_person_info(person_info)
 
 
 def scrap_cisei():
-    crh = CiseiRequestHandler()
-    names = get_names_list()
+    crh: CiseiRequestHandler = CiseiRequestHandler()
+    names: Set[str] = get_names_list()
 
     for name in names:
-        soup = crh.get_first_page(name)
+        soup: BeautifulSoup = crh.get_first_page(name)
         crh.parse_page(name, soup)
 
-        next_page = crh.next_page_exists(soup)
-        i = crh.MAX_RESULTS_PER_PAGE
-        while next_page:
+        is_next_page: bool = crh.next_page_exists(soup)
+        i: int = crh.MAX_RESULTS_PER_PAGE
+        while is_next_page:
             soup = crh.get_next_page(page=i)
             crh.parse_page(name, soup)
-            next_page = crh.next_page_exists(soup)
+            is_next_page = crh.next_page_exists(soup)
             i += crh.MAX_RESULTS_PER_PAGE
 
-        sleep(0.8)  # do not overload the server
+        # Do not overload the server
+        sleep(0.8)
