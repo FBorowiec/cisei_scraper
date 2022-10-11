@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2.extras import Json
 
 
-class LoggerDB:
+class Database:
     HOST: str = "database_pg"
     PORT: str = "5432"
     DB_NAME: str = "database_pg"
@@ -42,7 +42,7 @@ class LoggerDB:
                 self.cursor.execute(query, kwargs)
                 return self.cursor.fetchall()
 
-    def create_person_info_table(self):
+    def create_person_info_table(self) -> None:
         self.query_post("database/queries/create_person_info_table.sql")
 
     def add_person_info(self, person_info) -> None:
@@ -58,7 +58,7 @@ class LoggerDB:
             Json(person_info.details),
         )
 
-    def display_person_info(self):
+    def display_person_info(self) -> None:
         self.query_fetch_all("database/queries/display_person_info.sql")
 
     def __del__(self) -> None:

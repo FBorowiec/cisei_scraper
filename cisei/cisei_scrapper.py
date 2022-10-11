@@ -13,7 +13,7 @@ from requests.sessions import Session
 from tenacity import retry, wait_fixed
 from urllib3.util import Retry
 
-from cisei.cisei_logger import LoggerDB
+from cisei.cisei_database import Database
 
 
 class PersonalInfo(BaseModel):
@@ -34,7 +34,7 @@ class CiseiRequestHandler:
     MAX_RESULTS_PER_PAGE = 16
 
     def __init__(self) -> None:
-        self.logger = LoggerDB()
+        self.db = Database()
         self.session = self._init_session()
 
     def _init_session(self) -> Session:
@@ -57,14 +57,14 @@ class CiseiRequestHandler:
             "input_nome": "",
             "input_dest": "al",
         }
-        r = self.session.post(self.URL, custom_header)
-        r.raise_for_status()
-        c = r.content
-        soup = BeautifulSoup(c, "html.parser")
+        req = self.session.post(self.URL, custom_header)
+        req.raise_for_status()
+        content = req.content
+        soup = BeautifulSoup(content, "html.parser")
         return soup
 
     @retry(wait=wait_fixed(1))
-    def get_next_page(self, page: int):
+    def get_next_page(self, page: int) -> BeautifulSoup:
         cookie = self.session.cookies.get_dict()
         cookie_list = list(cookie.items())[0]
         cookie_str = f"{cookie_list[0]}={cookie_list[1]}"
@@ -73,10 +73,10 @@ class CiseiRequestHandler:
             "Connection": "keep-alive",
         }
         url = self.NEXT_PAGE_URL + str(page)
-        r = self.session.get(url, headers=custom_header)
-        r.raise_for_status()
-        c = r.content
-        soup = BeautifulSoup(c, "html.parser")
+        req = self.session.get(url, headers=custom_header)
+        req.raise_for_status()
+        content = req.content
+        soup = BeautifulSoup(content, "html.parser")
         return soup
 
     @retry(wait=wait_fixed(1))
@@ -90,34 +90,38 @@ class CiseiRequestHandler:
     def remove_alphanumeric(arg: str) -> str:
         return "".join([c for c in arg if c in (ascii_letters)])
 
-    def get_person_info(self, td_list: List, name: str):
-        idx = td_list[0].text
+    def get_person_info(self, td_list: List, name: str) -> PersonalInfo:
+        idx: str = td_list[0].text
 
-        age = re.search(r"\d+", td_list[2].text)
-        age = age.group(0) if age is not None else None
+        age: List[str] = re.search(r"\d+", td_list[2].text)
+        age: str = age.group(0) if age is not None else None
 
-        full_name = re.findall(r"[A-Z]+", td_list[1].text)
-        full_name = (
-            " ".join(full_name).replace(name.upper() + " ", "").title()
-            if full_name is not None
+        full_name_reg_res: List[str] = re.findall(r"[A-Z]+", td_list[1].text)
+        full_name: str = (
+            " ".join(full_name_reg_res).replace(name.upper() + " ", "").title()
+            if full_name_reg_res is not None
             else ""
         )
 
-        trip_date = re.findall(r"\d{1,4}", td_list[3].text)
-        trip_date = (
-            datetime.strptime("-".join(trip_date), "%d-%m-%Y")
-            if len(trip_date) != 0
+        trip_date_reg_res: List[str] = re.findall(r"\d{1,4}", td_list[3].text)
+        trip_date: date = (
+            datetime.strptime("-".join(trip_date_reg_res), "%d-%m-%Y")
+            if len(trip_date_reg_res) != 0
             else None
         )
 
-        registration_place = re.findall(r"\b[A-Z\w+]+", td_list[4].text)
-        registration_place = (
-            " ".join(registration_place) if registration_place is not None else ""
+        registration_place_reg_res: List[str] = re.findall(
+            r"\b[A-Z\w+]+", td_list[4].text
+        )
+        registration_place: str = (
+            " ".join(registration_place_reg_res)
+            if registration_place_reg_res is not None
+            else ""
         )
 
-        details = str(td_list[5].contents[1]).split('"')[1]
+        details: str = str(td_list[5].contents[1]).split('"')[1]
 
-        person_info = PersonalInfo(
+        person_info: PersonalInfo = PersonalInfo(
             idx=idx,
             surname=name,
             full_name=full_name,
@@ -129,12 +133,12 @@ class CiseiRequestHandler:
 
         return person_info
 
-    def get_person_details(self, person: PersonalInfo):
-        soup = self.get_details_soup(person.url)
-        tr_list = soup.find_all("td")
-        details_dict = {}
-        for tr in tr_list:
-            raw_txt = re.sub(r"\\<[/]?[a-z]\\>", "", tr.text).splitlines()
+    def get_person_details(self, person: PersonalInfo) -> Dict:
+        soup: BeautifulSoup = self.get_details_soup(person.url)
+        td_list: List = soup.find_all("td")
+        details_dict: Dict = {}
+        for tr in td_list:
+            raw_txt: List[str] = re.sub(r"\\<[/]?[a-z]\\>", "", tr.text).splitlines()
 
             for line in raw_txt:
                 try:
@@ -148,12 +152,12 @@ class CiseiRequestHandler:
 
         return details_dict
 
-    def parse_page(self, name: str, soup: BeautifulSoup):
-        tr_list = soup.find("div", {"class": "box"}).find("center").find_all("tr")
+    def parse_page(self, name: str, soup: BeautifulSoup) -> None:
+        tr_list: List = soup.find("div", {"class": "box"}).find("center").find_all("tr")
         for tr in tr_list:
-            td_list = tr.find_all("td", {"class": "tdesito"})
+            td_list: List[str] = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
-                person_info = self.get_person_info(td_list, name)
+                person_info: PersonalInfo = self.get_person_info(td_list, name)
                 person_info.details = self.get_person_details(person_info)
                 # Do not overload the server
                 sleep(0.5)
@@ -161,14 +165,14 @@ class CiseiRequestHandler:
                 self.log_person_info(person_info)
 
     def next_page_exists(self, soup: BeautifulSoup) -> bool:
-        matches = [
+        matches: List[str] = [
             str(x) for x in list(soup.find_all("a", href=re.compile(r".*tabelle.*")))
         ]
-        return "Successivi" in f"{matches}"
+        return "Successivi" in matches
 
     def log_person_info(self, person_info: PersonalInfo) -> None:
         logging.info(person_info, "\n")
-        self.logger.add_person_info(person_info)
+        self.db.add_person_info(person_info)
 
     def scrap(self, names: Set[str]) -> None:
         for name in names:

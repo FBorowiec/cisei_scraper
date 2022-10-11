@@ -5,11 +5,14 @@ package(default_visibility = ["//visibility:public"])
 py_library(
     name = "cisei_scrapper",
     srcs = [
-        "cisei_logger.py",
+        "cisei_database.py",
         "cisei_scrapper.py",
         "names.py",
     ],
-    data = ["//cognomix:names"],
+    data = [
+        "//cognomix:names",
+        "//database:queries",
+    ],
     deps = [
         "//third_party:beautifulsoup4",
         "//third_party:psycopg2-binary",
