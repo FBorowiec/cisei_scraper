@@ -15,7 +15,7 @@ py_library(
     ],
     deps = [
         "//third_party:beautifulsoup4",
-        "//third_party:psycopg2-binary",
+        "//third_party:psycopg2",
         "//third_party:pydantic",
         "//third_party:requests",
         "//third_party:tenacity",

@@ -3,7 +3,7 @@ from psycopg2.extras import Json
 
 
 class Database:
-    HOST: str = "database_pg"
+    HOST: str = "172.18.0.2"
     PORT: str = "5432"
     DB_NAME: str = "database_pg"
     USER: str = "postgres"
@@ -17,16 +17,16 @@ class Database:
             user=self.USER,
             password=self.PASSWORD,
         )
-        self.c = self.conn.cursor()
+        self.cursor = self.conn.cursor()
 
         self.create_person_info_table()
 
     def query_post(self, path: str, **kwargs) -> None:
         with open(path, "r", encoding="utf-8") as query_file:
             query: str = query_file.read()
-            with self.db_connection:
+            with self.conn:
                 self.cursor.execute(query, kwargs)
-                self.db_connection.commit()
+                self.conn.commit()
 
     def query_fetch_one(self, path: str) -> tuple:
         with open(path, "r", encoding="utf-8") as query_file:
@@ -63,5 +63,5 @@ class Database:
 
     def __del__(self) -> None:
         self.conn.commit()
-        self.c.close()
+        self.cursor.close()
         self.conn.close()
