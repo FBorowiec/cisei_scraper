@@ -9,9 +9,7 @@ py_library(
         "cisei_scrapper.py",
         "names.py",
     ],
-    data = [
-        "//cognomix:names",
-    ],
+    data = ["//cognomix:names"],
     deps = [
         "//third_party:beautifulsoup4",
         "//third_party:psycopg2-binary",
