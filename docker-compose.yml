@@ -1,0 +1,54 @@
+---
+version: "3"
+services:
+  database_pg:
+    image: postgres:13.2
+    container_name: database_pg
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=database_pg
+    ports:
+      - "5430:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 3
+    networks:
+      - local_net
+
+#   cisei:
+#     image: index.docker.io/framaxwlad/cisei:latest
+#     container_name: cisei
+#     depends_on:
+#       - database_pg
+#     networks:
+#       - local_net
+
+networks:
+  local_net:
+    driver: bridge
+
+#   grafana:
+#     image: grafana/grafana:7.5.4
+#     container_name: grafana
+#     restart: always
+#     volumes:
+#       - /root/grafana/provisioning/:/etc/grafana/provisioning/
+#       - grafana-storage:/var/lib/grafana
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - database_pg
+#     networks:
+#       - local_net
+#
+# volumes:
+#   grafana-pg-storage:
+#     external: true
+#   grafana-storage:
+#     external: true
