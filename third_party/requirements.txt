@@ -1,0 +1,10 @@
+argparse>=1.4.0
+beautifulsoup4==4.10.0
+black
+pandas
+psycopg2-binary
+pydantic
+pyyaml
+requests
+tenacity
+urllib3==1.26.7
