@@ -48,10 +48,6 @@ load(
 
 container_repositories()
 
-load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
-
-container_deps()
-
 load(
     "@io_bazel_rules_docker//python3:image.bzl",
     _py3_image_repos = "repositories",
@@ -67,8 +63,9 @@ load(
 )
 
 container_pull(
-    name = "ubuntu",
+    name = "ubuntu_python3",
     timeout = 1800,
+    digest = "sha256:e12c78fedc789c1a0c94ff981dc5e83ccc0dafeb340d67ba8b46fc58765d3dd2",
     registry = "index.docker.io",
     repository = "framaxwlad/ubuntu_python3",
     tag = "latest",

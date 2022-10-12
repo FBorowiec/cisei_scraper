@@ -21,13 +21,13 @@ services:
     networks:
       - local_net
 
-#   cisei:
-#     image: index.docker.io/framaxwlad/cisei:latest
-#     container_name: cisei
-#     depends_on:
-#       - database_pg
-#     networks:
-#       - local_net
+  cisei:
+    image: index.docker.io/framaxwlad/cisei:latest
+    container_name: cisei
+    depends_on:
+      - database_pg
+    networks:
+      - local_net
 
 networks:
   local_net:

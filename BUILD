@@ -21,7 +21,7 @@ py3_image(
     srcs = ["cisei_runner.py"],
     base = "ubuntu_python3",
     main = "cisei_runner.py",
-    deps = [":cisei_scrapper"],
+    deps = ["//cisei:cisei_scrapper"],
 )
 
 container_push(

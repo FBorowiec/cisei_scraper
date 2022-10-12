@@ -5,7 +5,7 @@ from data_types.person_info import PersonInfo
 
 
 class Database:
-    HOST: str = "172.18.0.2"
+    HOST: str = "database_pg"
     PORT: str = "5432"
     DB_NAME: str = "database_pg"
     USER: str = "postgres"
