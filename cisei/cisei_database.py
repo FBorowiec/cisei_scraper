@@ -1,6 +1,8 @@
 import psycopg2
 from psycopg2.extras import Json
 
+from data_types.person_info import PersonInfo
+
 
 class Database:
     HOST: str = "172.18.0.2"
@@ -45,17 +47,17 @@ class Database:
     def create_person_info_table(self) -> None:
         self.query_post("database/queries/create_person_info_table.sql")
 
-    def add_person_info(self, person_info) -> None:
+    def add_person_info(self, person_info: PersonInfo) -> None:
         self.query_post(
-            "database/queries/add_person_info.sql",
-            person_info.idx,
-            person_info.surname,
-            person_info.full_name,
-            person_info.age,
-            person_info.trip_date,
-            person_info.registration_place,
-            person_info.url,
-            Json(person_info.details),
+            path="database/queries/add_person_info.sql",
+            idx=person_info.idx,
+            surname=person_info.surname,
+            full_name=person_info.full_name,
+            age=person_info.age,
+            trip_date=person_info.trip_date,
+            registration_place=person_info.registration_place,
+            url=person_info.url,
+            details=Json(person_info.details),
         )
 
     def display_person_info(self) -> None:

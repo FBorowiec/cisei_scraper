@@ -14,9 +14,9 @@ py_library(
         "//database:queries",
     ],
     deps = [
+        "//data_types",
         "//third_party:beautifulsoup4",
         "//third_party:psycopg2",
-        "//third_party:pydantic",
         "//third_party:requests",
         "//third_party:tenacity",
         "//third_party:urllib3",

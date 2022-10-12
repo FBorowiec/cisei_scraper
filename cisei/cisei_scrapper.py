@@ -1,30 +1,18 @@
-import logging
 import re
 from datetime import date, datetime
 from string import ascii_letters
 from time import sleep
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
-from pydantic import BaseModel
 from requests.adapters import HTTPAdapter
 from requests.sessions import Session
 from tenacity import retry, wait_fixed
 from urllib3.util import Retry
 
 from cisei.cisei_database import Database
-
-
-class PersonalInfo(BaseModel):
-    idx: int
-    surname: str
-    full_name: str
-    age: Optional[int] = None
-    trip_date: Optional[date]
-    registration_place: str
-    url: str
-    details: Optional[Dict]
+from data_types.person_info import PersonInfo
 
 
 class CiseiRequestHandler:
@@ -90,7 +78,7 @@ class CiseiRequestHandler:
     def remove_alphanumeric(arg: str) -> str:
         return "".join([c for c in arg if c in (ascii_letters)])
 
-    def get_person_info(self, td_list: List, name: str) -> PersonalInfo:
+    def get_person_info(self, td_list: List, name: str) -> PersonInfo:
         idx: str = td_list[0].text
 
         age: List[str] = re.search(r"\d+", td_list[2].text)
@@ -121,7 +109,7 @@ class CiseiRequestHandler:
 
         details: str = str(td_list[5].contents[1]).split('"')[1]
 
-        person_info: PersonalInfo = PersonalInfo(
+        person_info: PersonInfo = PersonInfo(
             idx=idx,
             surname=name,
             full_name=full_name,
@@ -133,7 +121,7 @@ class CiseiRequestHandler:
 
         return person_info
 
-    def get_person_details(self, person: PersonalInfo) -> Dict:
+    def get_person_details(self, person: PersonInfo) -> Dict:
         soup: BeautifulSoup = self.get_details_soup(person.url)
         td_list: List = soup.find_all("td")
         details_dict: Dict = {}
@@ -157,8 +145,12 @@ class CiseiRequestHandler:
         for tr in tr_list:
             td_list: List[str] = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
-                person_info: PersonalInfo = self.get_person_info(td_list, name)
+                person_info: PersonInfo = self.get_person_info(td_list, name)
+                print(f"Found {person_info.full_name}")
+                print(person_info)
+                print("Getting details...")
                 person_info.details = self.get_person_details(person_info)
+                print(person_info.details)
                 # Do not overload the server
                 sleep(0.5)
 
@@ -170,12 +162,13 @@ class CiseiRequestHandler:
         ]
         return "Successivi" in matches
 
-    def log_person_info(self, person_info: PersonalInfo) -> None:
-        logging.info(person_info, "\n")
+    def log_person_info(self, person_info: PersonInfo) -> None:
+        print(person_info, "\n")
         self.db.add_person_info(person_info)
 
     def scrap(self, names: Set[str]) -> None:
         for name in names:
+            print(f"Scraping {name}")
             soup: BeautifulSoup = self.get_first_page(name)
             self.parse_page(name, soup)
 

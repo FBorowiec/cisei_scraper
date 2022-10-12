@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS person_info (
-    id serial PRIMARY KEY,
+    id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     idx int,
     surname text NOT NULL,
     full_name text NOT NULL,
