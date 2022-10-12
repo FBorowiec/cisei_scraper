@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import date, datetime
 from string import ascii_letters
@@ -13,6 +14,8 @@ from urllib3.util import Retry
 
 from cisei.cisei_database import Database
 from data_types.person_info import PersonInfo
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(message)s")
 
 
 class CiseiRequestHandler:
@@ -146,11 +149,11 @@ class CiseiRequestHandler:
             td_list: List[str] = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
                 person_info: PersonInfo = self.get_person_info(td_list, name)
-                print(f"Found {person_info.full_name}")
-                print(person_info)
-                print("Getting details...")
+                logging.info(f"Found {person_info.full_name}")
+                logging.info(person_info)
+                logging.info("Getting details...")
                 person_info.details = self.get_person_details(person_info)
-                print(person_info.details)
+                logging.info(person_info.details)
                 # Do not overload the server
                 sleep(0.5)
 
@@ -160,15 +163,18 @@ class CiseiRequestHandler:
         matches: List[str] = [
             str(x) for x in list(soup.find_all("a", href=re.compile(r".*tabelle.*")))
         ]
-        return "Successivi" in matches
+        is_match: bool = False
+        for match in matches:
+            is_match = is_match or "Successivi" in match
+        return is_match
 
     def log_person_info(self, person_info: PersonInfo) -> None:
-        print(person_info, "\n")
+        logging.info(person_info, "\n")
         self.db.add_person_info(person_info)
 
     def scrap(self, names: Set[str]) -> None:
         for name in names:
-            print(f"Scraping {name}")
+            logging.info(f"Scraping {name}")
             soup: BeautifulSoup = self.get_first_page(name)
             self.parse_page(name, soup)
 
