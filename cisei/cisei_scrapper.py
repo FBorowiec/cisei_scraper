@@ -1,4 +1,3 @@
-import logging
 import re
 from datetime import date, datetime
 from string import ascii_letters
@@ -9,20 +8,19 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from requests.sessions import Session
-from tenacity import retry, wait_fixed
+from tenacity import retry, wait_exponential
 from urllib3.util import Retry
 
 from cisei.cisei_database import Database
 from data_types.person_info import PersonInfo
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(message)s")
-
 
 class CiseiRequestHandler:
-    URL = "http://www.ciseionline.it/portomondo/ricerca.asp"
-    BASE_PERSON_URL = "http://www.ciseionline.it/portomondo/"
-    NEXT_PAGE_URL = "http://www.ciseionline.it/portomondo/tabelle.asp?primo="
-    MAX_RESULTS_PER_PAGE = 16
+    URL: str = "http://www.ciseionline.it/portomondo/ricerca.asp"
+    BASE_PERSON_URL: str = "http://www.ciseionline.it/portomondo/"
+    NEXT_PAGE_URL: str = "http://www.ciseionline.it/portomondo/tabelle.asp?primo="
+    MAX_RESULTS_PER_PAGE: int = 16
+    DELAY: float = 0.05
 
     def __init__(self) -> None:
         self.db = Database()
@@ -41,7 +39,7 @@ class CiseiRequestHandler:
         )
         return session
 
-    @retry(wait=wait_fixed(1))
+    @retry(wait=wait_exponential(multiplier=1, min=2, max=5))
     def get_first_page(self, surname: str) -> BeautifulSoup:
         custom_header = {
             "input_cognome": surname,
@@ -54,7 +52,7 @@ class CiseiRequestHandler:
         soup = BeautifulSoup(content, "html.parser")
         return soup
 
-    @retry(wait=wait_fixed(1))
+    @retry(wait=wait_exponential(multiplier=1, min=2, max=5))
     def get_next_page(self, page: int) -> BeautifulSoup:
         cookie = self.session.cookies.get_dict()
         cookie_list = list(cookie.items())[0]
@@ -70,7 +68,7 @@ class CiseiRequestHandler:
         soup = BeautifulSoup(content, "html.parser")
         return soup
 
-    @retry(wait=wait_fixed(1))
+    @retry(wait=wait_exponential(multiplier=1, min=2, max=5))
     def get_details_soup(self, details_url: str) -> BeautifulSoup:
         r = self.session.get(details_url)
         c = r.content
@@ -149,13 +147,13 @@ class CiseiRequestHandler:
             td_list: List[str] = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
                 person_info: PersonInfo = self.get_person_info(td_list, name)
-                logging.info(f"Found {person_info.full_name}")
-                logging.info(person_info)
-                logging.info("Getting details...")
+                print(f"Found {person_info.full_name}")
+                print(person_info)
+                print("Getting details...")
                 person_info.details = self.get_person_details(person_info)
-                logging.info(person_info.details)
+                print(person_info.details)
                 # Do not overload the server
-                sleep(0.5)
+                sleep(self.DELAY)
 
                 self.log_person_info(person_info)
 
@@ -169,12 +167,12 @@ class CiseiRequestHandler:
         return is_match
 
     def log_person_info(self, person_info: PersonInfo) -> None:
-        logging.info(person_info, "\n")
+        print(person_info, "\n")
         self.db.add_person_info(person_info)
 
     def scrap(self, names: Set[str]) -> None:
         for name in names:
-            logging.info(f"Scraping {name}")
+            print(f"Scraping {name}")
             soup: BeautifulSoup = self.get_first_page(name)
             self.parse_page(name, soup)
 
@@ -187,4 +185,4 @@ class CiseiRequestHandler:
                 i += self.MAX_RESULTS_PER_PAGE
 
             # Do not overload the server
-            sleep(0.5)
+            sleep(self.DELAY)
