@@ -2,7 +2,7 @@ import re
 from datetime import date, datetime
 from string import ascii_letters
 from time import sleep
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
@@ -139,26 +139,35 @@ class CiseiRequestHandler:
                 except ValueError:
                     pass
 
+        if details_dict == {}:
+            raise ValueError(f"No details found for {person}")
+
         return details_dict
 
-    def parse_page(self, name: str, soup: BeautifulSoup) -> None:
+    def parse_page(
+        self, name: str, soup: BeautifulSoup, last_id: Optional[int]
+    ) -> None:
         try:
             tr_list: List = (
                 soup.find("div", {"class": "box"}).find("center").find_all("tr")
             )
         except AttributeError:
-            print(f"No results for {name}")
-            return
+            raise AttributeError(f"No results for {name}")
         for tr in tr_list:
             td_list: List[str] = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
                 person_info: PersonInfo = self.get_person_info(td_list, name)
+                if last_id is not None and int(person_info.idx) <= last_id:
+                    print(f"Skipping id: {person_info.idx} - {person_info.full_name}")
+                    continue
                 print(f"Found {person_info.full_name}")
                 person_info.details = self.get_person_details(person_info)
+                print(person_info)
                 # Do not overload the server
                 sleep(self.DELAY)
 
                 self.log_person_info(person_info)
+                last_id = None
 
     def next_page_exists(self, soup: BeautifulSoup) -> bool:
         matches: List[str] = [
@@ -172,19 +181,34 @@ class CiseiRequestHandler:
     def log_person_info(self, person_info: PersonInfo) -> None:
         self.db.add_person_info(person_info)
 
+    def slice_names(self, names: Set[str], last_person: PersonInfo) -> Set[str]:
+        last_name: str = last_person.surname.lower().capitalize()
+        names = set(list(names)[list(names).index(last_name):])
+        return sorted(names)
+
     def scrap(self, names: Set[str]) -> None:
+        last_person: Optional[PersonInfo] = self.db.get_last_person_info()
+        last_id: Optional[int] = None
+        if last_person:
+            print(f"Last person in db: {last_person}")
+            print("Slicing names...")
+            names = self.slice_names(names, last_person)
+            last_id = last_person.idx
         for name in names:
             print(f"Scraping {name}")
             soup: BeautifulSoup = self.get_first_page(name)
-            self.parse_page(name, soup)
+            self.parse_page(name, soup, last_id)
 
             is_next_page: bool = self.next_page_exists(soup)
             i: int = self.MAX_RESULTS_PER_PAGE
             while is_next_page:
                 soup = self.get_next_page(page=i)
-                self.parse_page(name, soup)
+                self.parse_page(name, soup, last_id)
                 is_next_page = self.next_page_exists(soup)
                 i += self.MAX_RESULTS_PER_PAGE
+
+            # Reset last_id
+            last_id = None
 
             # Do not overload the server
             sleep(self.DELAY)
