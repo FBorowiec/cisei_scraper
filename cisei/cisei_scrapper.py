@@ -142,16 +142,19 @@ class CiseiRequestHandler:
         return details_dict
 
     def parse_page(self, name: str, soup: BeautifulSoup) -> None:
-        tr_list: List = soup.find("div", {"class": "box"}).find("center").find_all("tr")
+        try:
+            tr_list: List = (
+                soup.find("div", {"class": "box"}).find("center").find_all("tr")
+            )
+        except AttributeError:
+            print(f"No results for {name}")
+            return
         for tr in tr_list:
             td_list: List[str] = tr.find_all("td", {"class": "tdesito"})
             if len(td_list) != 0:
                 person_info: PersonInfo = self.get_person_info(td_list, name)
                 print(f"Found {person_info.full_name}")
-                print(person_info)
-                print("Getting details...")
                 person_info.details = self.get_person_details(person_info)
-                print(person_info.details)
                 # Do not overload the server
                 sleep(self.DELAY)
 
@@ -167,7 +170,6 @@ class CiseiRequestHandler:
         return is_match
 
     def log_person_info(self, person_info: PersonInfo) -> None:
-        print(person_info, "\n")
         self.db.add_person_info(person_info)
 
     def scrap(self, names: Set[str]) -> None:
