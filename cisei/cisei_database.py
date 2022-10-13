@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import psycopg2
 from psycopg2.extras import Json
 
@@ -33,14 +35,14 @@ class Database:
     def query_fetch_one(self, path: str) -> tuple:
         with open(path, "r", encoding="utf-8") as query_file:
             query: str = query_file.read()
-            with self.db_connection:
+            with self.conn:
                 self.cursor.execute(query)
                 return self.cursor.fetchone()
 
     def query_fetch_all(self, path: str, **kwargs) -> list:
         with open(path, "r", encoding="utf-8") as query_file:
             query: str = query_file.read()
-            with self.db_connection:
+            with self.conn:
                 self.cursor.execute(query, kwargs)
                 return self.cursor.fetchall()
 
@@ -62,6 +64,22 @@ class Database:
 
     def display_person_info(self) -> None:
         self.query_fetch_all("database/queries/display_person_info.sql")
+
+    def get_last_person_info(self) -> Optional[PersonInfo]:
+        result: Tuple = self.query_fetch_one(
+            "database/queries/get_last_person_info.sql"
+        )
+        if result:
+            return PersonInfo(
+                idx=result[1],
+                surname=result[2],
+                full_name=result[3],
+                age=result[4],
+                trip_date=result[5],
+                registration_place=result[6],
+                url=result[7],
+                details=result[8],
+            )
 
     def __del__(self) -> None:
         self.conn.commit()
