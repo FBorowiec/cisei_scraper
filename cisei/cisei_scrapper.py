@@ -93,11 +93,14 @@ class CiseiRequestHandler:
         )
 
         trip_date_reg_res: List[str] = re.findall(r"\d{1,4}", td_list[3].text)
-        trip_date: date = (
-            datetime.strptime("-".join(trip_date_reg_res), "%d-%m-%Y")
-            if len(trip_date_reg_res) != 0
-            else None
-        )
+        try:
+            trip_date: date = (
+                datetime.strptime("-".join(trip_date_reg_res), "%d-%m-%Y")
+                if len(trip_date_reg_res) != 0
+                else None
+            )
+        except ValueError:
+            trip_date = None
 
         registration_place_reg_res: List[str] = re.findall(
             r"\b[A-Z\w+]+", td_list[4].text
