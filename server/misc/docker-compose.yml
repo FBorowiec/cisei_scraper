@@ -1,0 +1,63 @@
+---
+version: "3.8"
+services:
+  database_pg:
+    image: postgres:13.2
+    container_name: database_pg
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=database_pg
+    # ports:
+    #   - "5430:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 3
+    networks:
+      - local_net
+
+  grafana:
+    image: grafana/grafana:9.1.8
+    container_name: grafana
+    restart: always
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - grafana-storage:/var/lib/grafana
+    # ports:
+    #   - "3000:3000"
+    depends_on:
+      - database_pg
+    networks:
+      - local_net
+
+  nginx:
+    image: quay.io/dtan4/nginx-basic-auth-proxy:latest
+    ports:
+      - 8080:80
+      - 8090:8090
+    environment:
+      - BASIC_AUTH_USERNAME=admin
+      - BASIC_AUTH_PASSWORD=admin
+      - SERVER_NAME=fborowiec.com
+      - PROXY_PASS=http://grafana:3000
+    depends_on:
+      - grafana
+    networks:
+      - local_net
+
+volumes:
+  grafana-pg-storage:
+    external: true
+  grafana-storage:
+    external: true
+  letsencrypt:
+    external: true
+
+networks:
+  local_net:
+    driver: bridge

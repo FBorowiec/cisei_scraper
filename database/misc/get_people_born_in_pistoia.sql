@@ -1,13 +1,10 @@
 SELECT
-    id,
-    idx,
-    surname,
-    full_name,
-    age,
-    trip_date,
-    registration_place,
-    url,
-    details
+    surname AS "Surname",
+    full_name AS "Full_name",
+    age AS "Age",
+    trip_date AS "Trip date",
+    registration_place AS "Registration place",
+    details AS "Details"
 FROM
     person_info
 WHERE
