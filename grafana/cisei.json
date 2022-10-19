@@ -1,0 +1,641 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 1,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "OyINJEI4z"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "F": {
+                                    "color": "#f496f5",
+                                    "index": 0,
+                                    "text": "Female"
+                                },
+                                "M": {
+                                    "color": "blue",
+                                    "index": 1,
+                                    "text": "Male"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ]
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "total"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#5794F2",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "men"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "unknown"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#cecece",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "women"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#e573e1",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 14,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.1.8",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "OyINJEI4z"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n    (\n        SELECT\n            COUNT(*)\n        FROM\n            person_info\n        WHERE (details ->> 'Sesso' = 'F'\n            OR details ->> 'Sesso' = 'FEMMINILE')\n        AND (LENGTH('${city:raw}') = 0\n            OR details ->> 'Luogo di nascita' ILIKE '%${city:raw}%'\n            OR details ->> 'Congiugimento (citt\u00e0)' ILIKE '%${city:raw}%'\n            OR details ->> 'Provenienza' ILIKE '%${city:raw}%'\n            OR details ->> 'Citt\u00e0 di provenienza' ILIKE '%${city:raw}%'\n            OR details ->> 'Provincia' ILIKE '%${city:raw}%'\n            --OR details ->> 'Provincia' ILIKE '%${city_code:raw}%'\n            OR details ->> 'Luogo di nascita / patria / nazione' ILIKE '%${city:raw}%'\n            OR details ->> 'Luogo di nascita normalizzato' ILIKE '%${city:raw}%')) AS women,\n(\n    SELECT\n        COUNT(*)\n    FROM\n        person_info\n    WHERE (details ->> 'Sesso' = 'M'\n        OR details ->> 'Sesso' = 'MASCHILE')\n    AND (LENGTH('${city:raw}') = 0\n        OR details ->> 'Luogo di nascita' ILIKE '%${city:raw}%'\n        OR details ->> 'Congiugimento (citt\u00e0)' ILIKE '%${city:raw}%'\n        OR details ->> 'Provenienza' ILIKE '%${city:raw}%'\n        OR details ->> 'Citt\u00e0 di provenienza' ILIKE '%${city:raw}%'\n        OR details ->> 'Provincia' ILIKE '%${city:raw}%'\n        --OR details ->> 'Provincia' ILIKE '%${city_code:raw}%'\n        OR details ->> 'Luogo di nascita / patria / nazione' ILIKE '%${city:raw}%'\n        OR details ->> 'Luogo di nascita normalizzato' ILIKE '%${city:raw}%')) AS men,\n(\n    SELECT\n        COUNT(*)\n    FROM\n        person_info\n    WHERE\n        details ->> 'Sesso' IS NULL\n        AND (LENGTH('${city:raw}') = 0\n            OR details ->> 'Luogo di nascita' ILIKE '%${city:raw}%'\n            OR details ->> 'Congiugimento (citt\u00e0)' ILIKE '%${city:raw}%'\n            OR details ->> 'Provenienza' ILIKE '%${city:raw}%'\n            OR details ->> 'Citt\u00e0 di provenienza' ILIKE '%${city:raw}%'\n            OR details ->> 'Provincia' ILIKE '%${city:raw}%'\n            --OR details ->> 'Provincia' ILIKE '%${city_code:raw}%'\n            OR details ->> 'Luogo di nascita / patria / nazione' ILIKE '%${city:raw}%'\n            OR details ->> 'Luogo di nascita normalizzato' ILIKE '%${city:raw}%')) AS unknown\nFROM\n    person_info\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Gender $city",
+            "type": "piechart"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "OyINJEI4z"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "Number of emigrants",
+                        "axisPlacement": "auto",
+                        "fillOpacity": 80,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineWidth": 1,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 14,
+                "w": 18,
+                "x": 6,
+                "y": 0
+            },
+            "id": 8,
+            "options": {
+                "barRadius": 0,
+                "barWidth": 0.75,
+                "groupWidth": 0.7,
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                },
+                "xField": "date",
+                "xTickLabelRotation": 90,
+                "xTickLabelSpacing": 100
+            },
+            "pluginVersion": "9.1.8",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "OyINJEI4z"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n    EXTRACT(YEAR FROM trip_date)::text AS date,\n    COUNT(*) AS persons\nFROM\n    person_info\nWHERE\n    trip_date IS NOT NULL AND (\n    LENGTH('${city:raw}') = 0\n    OR details ->> 'Luogo di nascita' ILIKE '%${city:raw}%'\n    OR details ->> 'Congiugimento (citt\u00e0)' ILIKE '%${city:raw}%'\n    OR details ->> 'Provenienza' ILIKE '%${city:raw}%'\n    OR details ->> 'Citt\u00e0 di provenienza' ILIKE '%${city:raw}%'\n    OR details ->> 'Provincia' ILIKE '%${city:raw}%'\n    --OR details ->> 'Provincia' ILIKE '%${city_code:raw}%'\n    OR details ->> 'Luogo di nascita / patria / nazione' ILIKE '%${city:raw}%'\n    OR details ->> 'Luogo di nascita normalizzato' ILIKE '%${city:raw}%')\nGROUP BY\n    date\nORDER BY\n    date;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Number of emigrants by year $city",
+            "type": "barchart"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "OyINJEI4z"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "fillOpacity": 80,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineWidth": 1,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Age Count"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "semi-dark-blue",
+                                    "mode": "continuous-BlYlRd"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 14
+            },
+            "id": 4,
+            "options": {
+                "barRadius": 0,
+                "barWidth": 0.75,
+                "groupWidth": 0.7,
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                },
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 0
+            },
+            "pluginVersion": "9.1.8",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "OyINJEI4z"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n    age::text AS \"Age\",\n    COUNT(*) AS \"Age Count\"\nFROM\n    person_info\nWHERE\n    age < 75\n    AND (LENGTH('${city:raw}') = 0\n        OR details ->> 'Luogo di nascita' ILIKE '%${city:raw}%'\n        OR details ->> 'Congiugimento (citt\u00e0)' ILIKE '%${city:raw}%'\n        OR details ->> 'Provenienza' ILIKE '%${city:raw}%'\n        OR details ->> 'Citt\u00e0 di provenienza' ILIKE '%${city:raw}%'\n        OR details ->> 'Provincia' ILIKE '%${city:raw}%'\n        --OR details ->> 'Provincia' ILIKE '%${city_code:raw}%'\n        OR details ->> 'Luogo di nascita / patria / nazione' ILIKE '%${city:raw}%'\n        OR details ->> 'Luogo di nascita normalizzato' ILIKE '%${city:raw}%')\nGROUP BY\n    age;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Age of departure $city",
+            "type": "barchart"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "OyINJEI4z"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "displayMode": "auto",
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "age"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 53
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "trip_date"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 158
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "surname"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 107
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "full_name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 141
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "registration_place"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 177
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Age"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 48
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 11,
+                "w": 24,
+                "x": 0,
+                "y": 23
+            },
+            "id": 2,
+            "options": {
+                "footer": {
+                    "enablePagination": true,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Surname"
+                    }
+                ]
+            },
+            "pluginVersion": "9.1.8",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "OyINJEI4z"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n    surname AS \"Surname\",\n    full_name AS \"Full_name\",\n    age AS \"Age\",\n    trip_date AS \"Trip date\",\n    registration_place AS \"Registration place\",\n    details AS \"Details\"\nFROM\n    person_info\nWHERE\n    LENGTH('${city:raw}') = 0\n    OR details ->> 'Luogo di nascita' ILIKE '%${city:raw}%'\n    OR details ->> 'Congiugimento (citt\u00e0)' ILIKE '%${city:raw}%'\n    OR details ->> 'Provenienza' ILIKE '%${city:raw}%'\n    OR details ->> 'Citt\u00e0 di provenienza' ILIKE '%${city:raw}%'\n    OR details ->> 'Provincia' ILIKE '%${city:raw}%'\n    --OR details ->> 'Provincia' ILIKE '%${city_code:raw}%'\n    OR details ->> 'Luogo di nascita / patria / nazione' ILIKE '%${city:raw}%'\n    OR details ->> 'Luogo di nascita normalizzato' ILIKE '%${city:raw}%'\nLIMIT 10000;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "People from $city",
+            "transformations": [
+                {
+                    "id": "convertFieldType",
+                    "options": {
+                        "conversions": [
+                            {
+                                "dateFormat": "YYYY-MM-DD",
+                                "destinationType": "time",
+                                "targetField": "trip_date"
+                            }
+                        ],
+                        "fields": {}
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "schemaVersion": 37,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": false,
+                    "text": "Palermo",
+                    "value": "Palermo"
+                },
+                "hide": 0,
+                "label": "City",
+                "name": "city",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "Palermo",
+                        "value": "Palermo"
+                    }
+                ],
+                "query": "Palermo",
+                "skipUrlSync": false,
+                "type": "textbox"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "CISEI data",
+    "uid": "W2s8_YS4z",
+    "version": 9,
+    "weekStart": ""
+}
