@@ -185,7 +185,7 @@ class CiseiRequestHandler:
         self.db.add_person_info(person_info)
 
     def slice_names(self, names: Set[str], last_person: PersonInfo) -> Set[str]:
-        last_name: str = last_person.surname.lower().capitalize()
+        last_name: str = last_person.surname.lower().title()
         names = set(list(names)[list(names).index(last_name):])
         return sorted(names)
 
