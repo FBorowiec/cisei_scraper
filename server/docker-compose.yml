@@ -46,16 +46,17 @@ services:
 
   certbot:
     image: certbot/certbot:latest
+    container_name: certbot
     volumes:
       - ./nginx/certbot/www/:/var/www/certbot/:rw
       - ./nginx/certbot/conf/:/etc/letsencrypt/:rw
 
-#   cisei:
-#     image: index.docker.io/framaxwlad/cisei:latest
-#     container_name: cisei
-#     restart: always
-#     depends_on:
-#       - database_pg
+  cisei:
+    image: index.docker.io/framaxwlad/cisei:latest
+    container_name: cisei
+    restart: always
+    depends_on:
+      - database_pg
 
 volumes:
   grafana-pg-storage:
