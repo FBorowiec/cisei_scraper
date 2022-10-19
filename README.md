@@ -12,3 +12,32 @@ Repository for scraping the CISEI website.
 * There are duplicates due to the fact that some persons made the trip,
     came back and went again (f.e.: COMI PIO).
 * There are spelling mistakes in the registers (f.e.: Guiseppe instead of Giuseppe.
+
+## Visualization
+
+The database is accessible at the following link:
+
+[fborowiec.com](https://www.fborowiec.com)
+
+The site is using a Grafana dashboard for visualization of different statistics:
+
+* Years of departure heatmap
+* Age of departure barchart
+* Gender piechart
+* top 10 provinces with most emigrants
+* top 10 regions with most emigrants
+* top 10 destinations
+* Analfabeti contro letterat piechart
+* number of emigrants from a given city
+
+# TODO
+
+## User Permission
+
+The database user should only be granted SELECT permissions on the specified database & tables you want to query.
+Grafana does not validate that queries are safe so queries can contain any SQL statement.
+For example, statements like DELETE FROM user; and DROP TABLE user; would be executed.
+To protect against this we Highly recommmend you create a specific PostgreSQL user with restricted permissions.
+
+##
+Grafana from 3000 -> 3001 to leave space for nginx?
