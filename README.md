@@ -2,6 +2,9 @@
 
 Repository for scraping the CISEI website.
 
+Special thanks to [Michele Falcone (Michał Sokołowski)](https://github.com/Sokolowski-Michal-Piotr)
+for his highly appreciated help setting up the reverse proxy and Grafana dashboards.
+
 ## Notes
 
 * As the CISEI websites allow only for querying when at least a family name is know,
@@ -24,11 +27,10 @@ The site is using a Grafana dashboard for visualization of different statistics:
 * Years of departure heatmap
 * Age of departure barchart
 * Gender piechart
+* number of emigrants from a given city
 * top 10 provinces with most emigrants
 * top 10 regions with most emigrants
 * top 10 destinations
-* Analfabeti contro letterat piechart
-* number of emigrants from a given city
 
 # TODO
 
