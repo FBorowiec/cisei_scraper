@@ -143,7 +143,7 @@ class CiseiRequestHandler:
                     pass
 
         if details_dict == {}:
-            raise ValueError(f"No details found for {person}")
+            print(f"No details found for {person}")
 
         return details_dict
 
