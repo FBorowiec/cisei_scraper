@@ -40,6 +40,3 @@ The database user should only be granted SELECT permissions on the specified dat
 Grafana does not validate that queries are safe so queries can contain any SQL statement.
 For example, statements like DELETE FROM user; and DROP TABLE user; would be executed.
 To protect against this we Highly recommmend you create a specific PostgreSQL user with restricted permissions.
-
-##
-Grafana from 3000 -> 3001 to leave space for nginx?
