@@ -1,0 +1,101 @@
+ I registri contengono le informazioni sui passeggeri che prima di essere imbarcati ottenevano la patente di sanità, ovvero superavano le
+ visite sanitarie previste per i passeggeri in partenza. I registri copilati in lingua italiana e francese, fanno parte del Fondo Sanità
+Marittima e sono organizzati in due serie distinte
+ Sesso
+ Passaporto n.
+ Data evento anno
+ Anno della sentenza
+ Luogo di nascita / patria / nazione
+ Denaro
+ Alfabeta
+ Congiugimento (indirizzo)
+ Data di arrivo
+ Classe
+ Congiugimento (città)
+ Congiugimento (codice)
+ Note/annotazioni come indicate
+ Stato civile
+ Nome della nave
+ Ultima residenza
+ Area geografica destinazioone normalizzata
+ Numero Linea
+ Cognome
+ Bandiera dell'imbarcazione
+ Luogo di destinazione (normalizzato)
+ Comandante dell'imbarcazione
+ Fonte
+ Professione/status
+ Data del viaggio (Sbarco a San Paolo)
+ Professione
+ Decisione del consiglio di leva
+ Comandante imbarcazione
+ Porto di arrivo
+ Tipo di imbarcazione
+ Professione/Status come indicati
+ Porto di imbarco
+ Nazione di nascita (normalizzata ad oggi)
+ Fondo
+ Luogo di nascita
+ Codice di viaggio
+ Visualizza la Lista passeggeri
+ Età alla registrazione
+ Provenienza
+ Nazione di destinazione
+ Data di nascita
+ Pagina registro
+ Nome e tipo imbarcazione normalizzato
+ ULIAN GIO
+ Data evento giorno
+ Congiugimento (nome)
+ Città di provenienza
+ Età
+ Luogo di nascita normalizzato
+ Istituto di conservazione
+ Transcode
+ Città di destinazione
+ Professione normalizzata per area
+ Sentenza registro
+ Stato di destinazione normalizzato
+ Serie
+ Porto di sbarco
+ Biglietto
+ Codice città
+ Nome nave
+ Data del viaggio (Sbarco a Buenos Aires)
+ Data del viaggio (Arrivo a New York)
+ Nazione di destinazione all\u0092epoca
+ Tipo di imbarcazione normalizzato
+ Precedente permanenza in USA
+ Data dell'evento di registrazione
+ Luogo di destinazione
+ Unità archivistica
+ Data di partenza
+ Destinazione
+ Area geografica di destinazione
+ Leggere e scrivere
+ Esazione/Totale
+ Note del compilatore
+ Viaggio
+ Codice destinazione
+ data sentenza o passaporto
+ Nazione di nascita dell'epoca normalizza
+ Nazione attuale di nascita normalizzata
+ Registro n.
+ Anno del registro
+ Luogo di destinazione normalizzato
+ Nome dell'imbarcazione
+ Provincia
+ Genere
+ Nave
+ Pagato da
+ Nazione di nascita dell'epoca
+ Data Partenza
+ Data della precedente permanenza in USA
+ Rotta
+ Nome e tipo di imbarcazione
+ Tipo imbarcazione
+ Data evento mese
+ Stato di destinazione (normalizzato)
+ Congiugimento
+ Nome
+ CANESIN GIOV
